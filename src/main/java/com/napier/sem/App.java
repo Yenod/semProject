@@ -11,9 +11,9 @@ public class App
             Connection connection = db.getConnection();
             PopulationReporter populationReporter = new PopulationReporter(connection);
             populationReporter.countryReport();
-            //populationReporter.cityReport("Cities");
-            //populationReporter.cityReport("Capitals");
-            //populationReporter.cityReport("Cities", 5);
+            populationReporter.cityReport("Cities");
+            populationReporter.cityReport("Capitals");
+            populationReporter.cityReport("Cities", 5);
             //populationReporter.populationReport("Country");
             //populationReporter.populationReport("World");
             //populationReporter.populationReport("Continent", "Africa");

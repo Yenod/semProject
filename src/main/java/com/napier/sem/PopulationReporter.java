@@ -26,7 +26,7 @@ public class PopulationReporter
 
     public void countryReport()
     {
-        String query = "SELECT * FROM country";
+        String query = "SELECT * FROM country ORDER BY Population DESC";
 
         try (PreparedStatement stmt = connection.prepareStatement(query))
         {
@@ -52,11 +52,43 @@ public class PopulationReporter
 
     public void cityReport(String capitals)
     {
-
+        cityReport(capitals, null);
     }
 
-    public void cityReport(String capitals, int limit)
+    public void cityReport(String capitals, Integer limit)
     {
+        String query = "";
 
+        if (capitals.equalsIgnoreCase("capitals") || capitals.equalsIgnoreCase("capital"))
+        {
+            query = "SELECT city.Name, country.Name AS Country, city.District, city.Population "
+                    + "FROM city JOIN country ON city.ID = country.Capital "
+                    + "ORDER BY city.Population DESC LIMIT " + limit;
+        }
+        else
+        {
+            query = "SELECT * FROM city ORDER BY Population DESC LIMIT " + limit;
+        }
+
+        try (PreparedStatement stmt = connection.prepareStatement(query))
+        {
+            try (ResultSet rs = stmt.executeQuery())
+            {
+                while (rs.next())
+                {
+                    City city = new City(
+                            rs.getString("Name"),
+                            rs.getString("Country"),
+                            rs.getString("District"),
+                            rs.getInt("Population")
+                    );
+                    System.out.println(city);
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println(e.getMessage());
+        }
     }
 }
