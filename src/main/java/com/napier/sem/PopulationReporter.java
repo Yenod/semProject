@@ -1,11 +1,10 @@
 package com.napier.sem;
 
 import java.sql.*;
-import java.util.ArrayList;
 
 public class PopulationReporter
 {
-    private Connection connection;
+    private final Connection connection;
 
     public PopulationReporter (Connection connection) { this.connection = connection; }
 
@@ -57,19 +56,16 @@ public class PopulationReporter
 
     public void cityReport(String capitals, Integer limit)
     {
-        String query;
+        String query = "SELECT city.Name, country.Name AS Country, city.District, city.Population "
+                     + "FROM city JOIN country ON city.CountryCode = country.Code ";
 
         if (capitals.equalsIgnoreCase("capitals") || capitals.equalsIgnoreCase("capital"))
         {
-            query = "SELECT city.Name, country.Name AS Country, city.District, city.Population "
-                    + "FROM city JOIN country ON city.ID = country.Capital "
-                    + "ORDER BY city.Population DESC";
-        }
-        else
-        {
-            query = "SELECT * FROM city ORDER BY Population DESC";
+            query += "WHERE city.CountryCode = country.Code ";
+
         }
 
+        query += "ORDER BY city.Population DESC";
         if (limit != null) query += " LIMIT " + limit;
 
         try (PreparedStatement stmt = connection.prepareStatement(query))
@@ -84,7 +80,17 @@ public class PopulationReporter
                             rs.getString("District"),
                             rs.getInt("Population")
                     );
-                    System.out.println(city);
+                    if (capitals.equalsIgnoreCase("capitals") || capitals.equalsIgnoreCase("capital"))
+                    {
+                        System.out.println("Name = " + city.name()
+                                + ", Country = " + city.country()
+                                + ", Population = " + city.population());
+                    }
+                    else
+                    {
+                        System.out.println(city);
+                    }
+
                 }
             }
         }
