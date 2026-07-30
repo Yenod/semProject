@@ -57,18 +57,20 @@ public class PopulationReporter
 
     public void cityReport(String capitals, Integer limit)
     {
-        String query = "";
+        String query;
 
         if (capitals.equalsIgnoreCase("capitals") || capitals.equalsIgnoreCase("capital"))
         {
             query = "SELECT city.Name, country.Name AS Country, city.District, city.Population "
                     + "FROM city JOIN country ON city.ID = country.Capital "
-                    + "ORDER BY city.Population DESC LIMIT " + limit;
+                    + "ORDER BY city.Population DESC";
         }
         else
         {
-            query = "SELECT * FROM city ORDER BY Population DESC LIMIT " + limit;
+            query = "SELECT * FROM city ORDER BY Population DESC";
         }
+
+        if (limit != null) query += " LIMIT " + limit;
 
         try (PreparedStatement stmt = connection.prepareStatement(query))
         {
