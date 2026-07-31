@@ -1,5 +1,4 @@
 package com.napier.sem;
-
 import java.sql.*;
 import java.util.Locale;
 
@@ -13,7 +12,37 @@ public class PopulationReporter
 
     public void languageReport(String... args)
     {
+        String placeholders = String.join(", ", java.util.Collections.nCopies(args.length, "?"));
+        String query = "SELECT Language, SUM(Population * Percentage / 100) AS Speakers, "
+                + "(SELECT SUM(Population) FROM country) AS TotalPopulation "
+                + "FROM countrylanguage JOIN country ON Code = CountryCode "
+                + "WHERE Language IN (" + placeholders + ") GROUP BY Language ORDER BY Speakers DESC";
 
+        try (PreparedStatement stmt = connection.prepareStatement(query))
+        {
+            for (int i = 0; i < args.length; i++)
+            {
+                stmt.setString(i + 1, args[i]);
+            }
+
+            try (ResultSet rs = stmt.executeQuery())
+            {
+                while (rs.next())
+                {
+                    String language = rs.getString("Language");
+                    long speakers = rs.getLong("Speakers");
+                    long totalPopulation = rs.getLong("TotalPopulation");
+                    double percentage = (double) speakers / totalPopulation * 100;
+                    System.out.printf(
+                            "Language = %s, Speakers = %d, Percentage = %.2f%%%n",
+                            language, speakers, percentage);
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void populationReport(String type)
