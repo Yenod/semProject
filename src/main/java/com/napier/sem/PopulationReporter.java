@@ -24,80 +24,96 @@ public class PopulationReporter
     public void populationReport(String type, String name)
     {
         String typeLower = type.toLowerCase(Locale.ROOT);
-        String query = "";
+        String query;
         int placeholders = 0;
 
         switch (typeLower)
         {
             case "world":
-                query = "SELECT (SELECT SUM(Population) FROM country) AS TotalPopulation, "
-                      + "(SELECT SUM(Population) FROM city) AS UrbanPopulation";
+                query = "SELECT 'World' AS Name, "
+                        + "(SELECT SUM(Population) FROM country) AS TotalPopulation, "
+                        + "(SELECT SUM(Population) FROM city) AS UrbanPopulation";
                 break;
             case "continent":
-                query = "SELECT (SELECT SUM(Population) FROM country WHERE Continent = ?) AS TotalPopulation, "
-                      + "(SELECT SUM(city.Population) FROM city JOIN country ON city.CountryCode = country.Code "
-                      + "WHERE country.Continent = ?) AS UrbanPopulation";
-                placeholders = 1;
+                query = "SELECT ? AS Name, "
+                        + "(SELECT SUM(Population) FROM country WHERE Continent = ?) AS TotalPopulation, "
+                        + "(SELECT SUM(city.Population) FROM city "
+                        + "JOIN country ON city.CountryCode = country.Code "
+                        + "WHERE country.Continent = ?) AS UrbanPopulation";
+                placeholders = 3;
                 break;
             case "region":
-                query = "SELECT (SELECT SUM(Population) FROM country WHERE Region = ?) AS TotalPopulation, "
-                      + "(SELECT SUM(city.Population) FROM city JOIN country ON city.CountryCode = country.Code "
-                      + "WHERE country.Region = ?) AS UrbanPopulation";
-                placeholders = 2;
+                query = "SELECT ? AS Name, "
+                        + "(SELECT SUM(Population) FROM country WHERE Region = ?) AS TotalPopulation, "
+                        + "(SELECT SUM(city.Population) FROM city "
+                        + "JOIN country ON city.CountryCode = country.Code "
+                        + "WHERE country.Region = ?) AS UrbanPopulation";
+                placeholders = 3;
                 break;
             case "country":
-                query = "SELECT country.Name, country.Population AS TotalPopulation, "
-                      + "SUM(COALESCE(city.Population, 0)) AS UrbanPopulation "
-                      + "FROM country LEFT JOIN city ON city.CountryCode = country.Code";
+                query = "SELECT country.Name AS Name, "
+                        + "country.Population AS TotalPopulation, "
+                        + "SUM(COALESCE(city.Population, 0)) AS UrbanPopulation "
+                        + "FROM country "
+                        + "LEFT JOIN city ON city.CountryCode = country.Code ";
+
                 if (name != null)
                 {
-                    query += " WHERE country.Name = ?";
+                    query += "WHERE country.Name = ? ";
                     placeholders = 1;
                 }
-                query += "GROUP BY country.Code";
+
+                query += "GROUP BY country.Code, country.Name, country.Population";
                 break;
             case "district":
-                query = "SELECT SUM(Population) AS TotalPopulation FROM city WHERE District = ?";
-                placeholders = 1;
+                query = "SELECT ? AS Name, "
+                        + "SUM(Population) AS TotalPopulation, "
+                        + "SUM(Population) AS UrbanPopulation "
+                        + "FROM city WHERE District = ?";
+                placeholders = 2;
                 break;
             case "city":
-                query = "SELECT SUM(Population) AS TotalPopulation FROM city WHERE Name = ?";
-                placeholders = 1;
+                query = "SELECT ? AS Name, "
+                        + "SUM(Population) AS TotalPopulation, "
+                        + "SUM(Population) AS UrbanPopulation "
+                        + "FROM city WHERE Name = ?";
+                placeholders = 2;
                 break;
             default:
                 return;
         }
 
-
         try (PreparedStatement stmt = connection.prepareStatement(query))
         {
-            if (name != null)
-            {
-                for (int i = 0; i < placeholders; i++)
-                {
-                    stmt.setString(i, name);
-                }
-            }
+            for (int i = 1; i <= placeholders; i++) stmt.setString(i, name);
 
             try (ResultSet rs = stmt.executeQuery())
             {
                 while (rs.next())
                 {
-                    String entityName = name != null ? name : rs.getString("Name");
-                    int totalPopulation = rs.getInt("TotalPopulation");
-                    int urbanPopulation = rs.getInt("UrbanPopulation");
-                    int ruralPopulation = max(totalPopulation - urbanPopulation, 0); // For Singapore alone
+                    String entityName = rs.getString("Name");
+                    long totalPopulation = rs.getLong("TotalPopulation");
+                    long urbanPopulation = rs.getLong("UrbanPopulation");
+                    long ruralPopulation = max(totalPopulation - urbanPopulation, 0);
 
-                    PopulationRecord record = new PopulationRecord(entityName, totalPopulation, urbanPopulation, ruralPopulation);
+                    PopulationRecord record = new PopulationRecord(
+                            entityName,
+                            totalPopulation,
+                            urbanPopulation,
+                            ruralPopulation
+                    );
 
-                    double urbanPercent = totalPopulation > 0 ? ((double) urbanPopulation / totalPopulation) * 100 : 0.0;
-                    double ruralPercent = totalPopulation > 0 ? ((double) ruralPopulation / totalPopulation) * 100 : 0.0;
+                    double urbanPercent = totalPopulation > 0 ?
+                            ((double) urbanPopulation / totalPopulation) * 100 : 0.0;
+                    double ruralPercent = totalPopulation > 0 ?
+                            ((double) ruralPopulation / totalPopulation) * 100 : 0.0;
 
                     System.out.printf("Name: %s | Total Population: %,d", record.name(), record.totalPopulation());
-                    if (!typeLower.equals("district"))
+
+                    if (!typeLower.equals("district") && !typeLower.equals("city"))
                     {
                         System.out.printf(" | Urban Population: %,d (%.2f%%) | Rural Population: %,d (%.2f%%)%n",
-                                record.urbanPopulation(), urbanPercent, record.ruralPopulation(), ruralPercent);
+                            record.urbanPopulation(), urbanPercent, record.ruralPopulation(), ruralPercent);
                     }
                 }
             }
