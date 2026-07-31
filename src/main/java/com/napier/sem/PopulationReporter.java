@@ -1,6 +1,9 @@
 package com.napier.sem;
 
 import java.sql.*;
+import java.util.Locale;
+
+import static java.lang.Math.*;
 
 public class PopulationReporter
 {
@@ -15,12 +18,94 @@ public class PopulationReporter
 
     public void populationReport(String type)
     {
-
+        populationReport(type, null);
     }
 
     public void populationReport(String type, String name)
     {
+        String typeLower = type.toLowerCase(Locale.ROOT);
+        String query = "";
+        int placeholders = 0;
 
+        switch (typeLower)
+        {
+            case "world":
+                query = "SELECT (SELECT SUM(Population) FROM country) AS TotalPopulation, "
+                      + "(SELECT SUM(Population) FROM city) AS UrbanPopulation";
+                break;
+            case "continent":
+                query = "SELECT (SELECT SUM(Population) FROM country WHERE Continent = ?) AS TotalPopulation, "
+                      + "(SELECT SUM(city.Population) FROM city JOIN country ON city.CountryCode = country.Code "
+                      + "WHERE country.Continent = ?) AS UrbanPopulation";
+                placeholders = 1;
+                break;
+            case "region":
+                query = "SELECT (SELECT SUM(Population) FROM country WHERE Region = ?) AS TotalPopulation, "
+                      + "(SELECT SUM(city.Population) FROM city JOIN country ON city.CountryCode = country.Code "
+                      + "WHERE country.Region = ?) AS UrbanPopulation";
+                placeholders = 2;
+                break;
+            case "country":
+                query = "SELECT country.Name, country.Population AS TotalPopulation, "
+                      + "SUM(COALESCE(city.Population, 0)) AS UrbanPopulation "
+                      + "FROM country LEFT JOIN city ON city.CountryCode = country.Code";
+                if (name != null)
+                {
+                    query += " WHERE country.Name = ?";
+                    placeholders = 1;
+                }
+                query += "GROUP BY country.Code";
+                break;
+            case "district":
+                query = "SELECT SUM(Population) AS TotalPopulation FROM city WHERE District = ?";
+                placeholders = 1;
+                break;
+            case "city":
+                query = "SELECT SUM(Population) AS TotalPopulation FROM city WHERE Name = ?";
+                placeholders = 1;
+                break;
+            default:
+                return;
+        }
+
+
+        try (PreparedStatement stmt = connection.prepareStatement(query))
+        {
+            if (name != null)
+            {
+                for (int i = 0; i < placeholders; i++)
+                {
+                    stmt.setString(i, name);
+                }
+            }
+
+            try (ResultSet rs = stmt.executeQuery())
+            {
+                while (rs.next())
+                {
+                    String entityName = name != null ? name : rs.getString("Name");
+                    int totalPopulation = rs.getInt("TotalPopulation");
+                    int urbanPopulation = rs.getInt("UrbanPopulation");
+                    int ruralPopulation = max(totalPopulation - urbanPopulation, 0); // For Singapore alone
+
+                    PopulationRecord record = new PopulationRecord(entityName, totalPopulation, urbanPopulation, ruralPopulation);
+
+                    double urbanPercent = totalPopulation > 0 ? ((double) urbanPopulation / totalPopulation) * 100 : 0.0;
+                    double ruralPercent = totalPopulation > 0 ? ((double) ruralPopulation / totalPopulation) * 100 : 0.0;
+
+                    System.out.printf("Name: %s | Total Population: %,d", record.name(), record.totalPopulation());
+                    if (!typeLower.equals("district"))
+                    {
+                        System.out.printf(" | Urban Population: %,d (%.2f%%) | Rural Population: %,d (%.2f%%)%n",
+                                record.urbanPopulation(), urbanPercent, record.ruralPopulation(), ruralPercent);
+                    }
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void countryReport()

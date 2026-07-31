@@ -10,17 +10,17 @@ public class App
         {
             Connection connection = db.getConnection();
             PopulationReporter populationReporter = new PopulationReporter(connection);
-            populationReporter.countryReport();
-            populationReporter.cityReport("Cities");
-            populationReporter.cityReport("Capitals");
-            populationReporter.cityReport("Cities", 5);
-            //populationReporter.populationReport("Country");
-            //populationReporter.populationReport("World");
-            //populationReporter.populationReport("Continent", "Africa");
-            //populationReporter.populationReport("Region", "Caribbean");
-            //populationReporter.populationReport("Country", "Malaysia");
-            //populationReporter.populationReport("District", "Henan");
-            //populationReporter.populationReport("City", "Paris");
+            //populationReporter.countryReport();
+            //populationReporter.cityReport("Cities");
+            //populationReporter.cityReport("Capitals");
+            //populationReporter.cityReport("Cities", 5);
+            populationReporter.populationReport("Country");
+            populationReporter.populationReport("World");
+            populationReporter.populationReport("Continent", "Africa");
+            populationReporter.populationReport("Region", "Caribbean");
+            populationReporter.populationReport("Country", "Malaysia");
+            populationReporter.populationReport("District", "Henan");
+            populationReporter.populationReport("City", "Paris");
             //populationReporter.languageReport("Chinese", "English", "Spanish");
         }
     }
