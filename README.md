@@ -5,3 +5,4 @@ Develop Build Status:   [![develop](https://github.com/Yenod/semProject/actions/
 
 [![GitHub License](https://img.shields.io/github/license/yenod/semproject?style=flat-square)](https://github.com/yenod/semproject/blob/master/LICENSE)<br>
 [![Releases](https://img.shields.io/github/release/Yenod/semProject?style=flat-square)](https://github.com/Yenod/semProject/releases)
+[![codecov](https://codecov.io/gh/Yenod/semProject/graph/badge.svg?token=EFF2DV3SIY)](https://codecov.io/gh/Yenod/semProject)
