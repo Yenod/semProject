@@ -13,14 +13,14 @@ public class App
             //populationReporter.countryReport();
             //populationReporter.cityReport("Cities");
             //populationReporter.cityReport("Capitals");
-            //populationReporter.cityReport("Cities", 5);
-            /*populationReporter.populationReport("Country");
-            populationReporter.populationReport("World");
+            populationReporter.cityReport("Cities", 5);
+            //populationReporter.populationReport("Country");
+            //populationReporter.populationReport("World");
             populationReporter.populationReport("Continent", "Africa");
             populationReporter.populationReport("Region", "Caribbean");
             populationReporter.populationReport("Country", "Malaysia");
             populationReporter.populationReport("District", "Henan");
-            populationReporter.populationReport("City", "Paris");*/
+            populationReporter.populationReport("City", "Paris");
             populationReporter.languageReport("Chinese", "English", "Spanish");
         }
     }
