@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+
+actor "Data Analyst" as Analyst
+database "World Database" as Database
+
+rectangle "Population Data Reporting System" {
+    usecase "Generate country\n report" as CountryReport
+    usecase "Generate city\n report" as CityReport
+    usecase "Generate capital city\n report" as CapitalReport
+    usecase "Generate population\ndistribution report" as PopulationReport
+    usecase "Generate language\nspeakers report" as LanguageReport
+
+    usecase "Specify result\nlimit (N)" as SpecifyLimit
+    usecase "Select geographic\nentity" as SelectEntity
+    usecase "Specify languages" as SpecifyLanguages
+    usecase "Retrieve population\ndata" as RetrieveData
+}
+
+Analyst --> CountryReport
+Analyst --> CityReport
+Analyst --> CapitalReport
+Analyst --> PopulationReport
+Analyst --> LanguageReport
+
+CityReport .> SpecifyLimit : <<include>>
+PopulationReport .> SelectEntity : <<include>>
+LanguageReport .> SpecifyLanguages : <<include>>
+
+CountryReport .> RetrieveData : <<include>>
+CityReport .> RetrieveData : <<include>>
+CapitalReport .> RetrieveData : <<include>>
+PopulationReport .> RetrieveData : <<include>>
+LanguageReport .> RetrieveData : <<include>>
+
+Database --> RetrieveData
+@enduml

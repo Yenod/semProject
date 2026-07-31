@@ -25,7 +25,7 @@ The application is launched with the report hard-coded or the user selects the r
 1. Application launches and connects to the database.
 2. User selects the corresponding report and supplies a limit N.
 3. System queries the database for the necessary data and formats the results.
-4. System displays the ordered list of countries.
+4. System displays the ordered list of cities.
 5. System terminates and disconnects from the database.
 ## EXTENSION 
 **Database connection fails**: System retries connection or displays “Unable to connect to database.”<br> 
