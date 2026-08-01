@@ -4,5 +4,5 @@ Master Build Status:   [![master](https://github.com/Yenod/semProject/actions/wo
 Develop Build Status:   [![develop](https://github.com/Yenod/semProject/actions/workflows/main.yml/badge.svg?branch=develop)](https://github.com/Yenod/semProject/actions/workflows/main.yml)<br>
 
 [![GitHub License](https://img.shields.io/github/license/yenod/semproject?style=flat-square)](https://github.com/yenod/semproject/blob/master/LICENSE)<br>
-[![Releases](https://img.shields.io/github/release/Yenod/semProject?style=flat-square)](https://github.com/Yenod/semProject/releases)
+[![Releases](https://img.shields.io/github/release/Yenod/semProject?style=flat-square)](https://github.com/Yenod/semProject/releases)<br>
 [![codecov](https://codecov.io/gh/Yenod/semProject/graph/badge.svg?token=EFF2DV3SIY)](https://codecov.io/gh/Yenod/semProject)

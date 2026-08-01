@@ -1,8 +1,5 @@
 name: semProject workflow
 on:
-  push:
-    branches:
-      - master
   pull_request:
     types: [ closed ]
 
