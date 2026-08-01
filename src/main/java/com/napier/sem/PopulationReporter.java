@@ -36,7 +36,7 @@ public class PopulationReporter
                     long totalPopulation = rs.getLong("TotalPopulation");
                     double percentage = (double) speakers / totalPopulation * 100;
                     System.out.printf(
-                            "Language = %s, Speakers = %d, Percentage = %.2f%%%n",
+                            "%nLanguage = %s, Speakers = %d, Percentage = %.2f%%",
                             language, speakers, percentage);
                 }
             }

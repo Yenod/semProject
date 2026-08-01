@@ -10,7 +10,7 @@ public class DBManager implements AutoCloseable
 
     public Connection getConnection() { return connection; }
 
-    public DBManager()
+    public DBManager(String location, int delay)
     {
         try
         {
@@ -23,19 +23,18 @@ public class DBManager implements AutoCloseable
         }
 
         // Connection to the database
-        int retries = 20;
+        int retries = 10;
         for (int i = 0; i < retries; ++i)
         {
             System.out.println("Connecting to database...");
             try
             {
                 // Wait a bit for db to start
-                Thread.sleep(3000);
-                this.connection = DriverManager.getConnection(
-                        "jdbc:mysql://db:3306/world?useSSL=false&allowPublicKeyRetrieval=true",
-                        "root", "example");
+                Thread.sleep(delay);
+                this.connection = DriverManager.getConnection("jdbc:mysql://" + location
+                                + "/world?allowPublicKeyRetrieval=true&useSSL=false",
+                            "root", "example");
                 System.out.println("Successfully connected");
-                Thread.sleep(1000);
                 break;
             }
             catch (SQLException sqle)
