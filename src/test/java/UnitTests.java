@@ -129,7 +129,7 @@ class UnitTests
         reporter.populationReport("continent", "Europe");
 
         String report = testOut.toString();
-        verify(statement).setString(anyInt(), "Europe");
+        verify(statement).setString(3, "Europe");
         assertTrue(report.contains("Europe"));
         assertTrue(report.contains("1,000"));
         assertTrue(report.contains("60)"));
