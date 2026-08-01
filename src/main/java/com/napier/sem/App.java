@@ -25,7 +25,7 @@ public class App
             PopulationReporter populationReporter = new PopulationReporter(connection);
 
         // Desired reports go here:
-            //populationReporter.countryReport();
+            populationReporter.countryReport();
             //populationReporter.cityReport("Cities");
             //populationReporter.cityReport("Capitals");
             populationReporter.cityReport("Cities", 5);

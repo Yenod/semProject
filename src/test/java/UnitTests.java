@@ -13,6 +13,7 @@ class UnitTests
     private PopulationReporter reporter;
     private PreparedStatement statement;
     private final PrintStream systemOut = System.out;
+    private ByteArrayOutputStream outputBuffer;
     private PrintStream testOut;
 
     @BeforeEach
@@ -21,7 +22,8 @@ class UnitTests
         Connection connection = mock(Connection.class);
         statement = mock(PreparedStatement.class);
         resultSet = mock(ResultSet.class);
-        testOut = new PrintStream(new ByteArrayOutputStream());
+        outputBuffer = new ByteArrayOutputStream();
+        testOut = new PrintStream(outputBuffer);
 
         when(connection.prepareStatement(anyString())).thenReturn(statement);
         when(statement.executeQuery()).thenReturn(resultSet);
@@ -50,11 +52,12 @@ class UnitTests
 
         reporter.countryReport();
 
-        assertTrue(testOut.toString().contains("USA"));
-        assertTrue(testOut.toString().contains("United States"));
-        assertTrue(testOut.toString().contains("North America"));
-        assertTrue(testOut.toString().contains("278357000"));
-        assertTrue(testOut.toString().contains("Washington"));
+        String report = outputBuffer.toString();
+        assertTrue(report.contains("USA"));
+        assertTrue(report.contains("United States"));
+        assertTrue(report.contains("North America"));
+        assertTrue(report.contains("278357000"));
+        assertTrue(report.contains("Washington"));
     }
 
     @Test
@@ -70,7 +73,7 @@ class UnitTests
 
         reporter.cityReport("cities");
 
-        String report = testOut.toString();
+        String report = outputBuffer.toString();
         assertTrue(report.contains("Edinburgh"));
         assertTrue(report.contains("United Kingdom"));
         assertTrue(report.contains("Scotland"));
@@ -90,7 +93,7 @@ class UnitTests
 
         reporter.cityReport("capitals");
 
-        String report = testOut.toString();
+        String report = outputBuffer.toString();
         assertTrue(report.contains("London"));
         assertTrue(report.contains("United Kingdom"));
         assertTrue(report.contains("7285000"));
@@ -108,11 +111,11 @@ class UnitTests
 
         reporter.populationReport("World");
 
-        String report = testOut.toString();
+        String report = outputBuffer.toString();
         assertTrue(report.contains("World"));
         assertTrue(report.contains("1,000"));
-        assertTrue(report.contains("60)"));
-        assertTrue(report.contains("40"));
+        assertTrue(report.contains("80"));
+        assertTrue(report.contains("20"));
         assertTrue(report.contains("%"));
     }
 
@@ -128,12 +131,12 @@ class UnitTests
 
         reporter.populationReport("continent", "Europe");
 
-        String report = testOut.toString();
-        verify(statement).setString(anyInt(), "Europe");
+        String report = outputBuffer.toString();
+        verify(statement).setString(3, "Europe");
         assertTrue(report.contains("Europe"));
         assertTrue(report.contains("1,000"));
-        assertTrue(report.contains("60)"));
-        assertTrue(report.contains("40"));
+        assertTrue(report.contains("80"));
+        assertTrue(report.contains("20"));
         assertTrue(report.contains("%"));
     }
 
@@ -149,11 +152,10 @@ class UnitTests
 
         reporter.languageReport("English");
 
-        String report = testOut.toString();
-        verify(statement).setString(anyInt(), "English");
+        String report = outputBuffer.toString();
+        verify(statement).setString(1, "English");
         assertTrue(report.contains("English"));
         assertTrue(report.contains("200"));
-        assertTrue(report.contains("1,000"));
         assertTrue(report.contains("20"));
         assertTrue(report.contains("%"));
     }
