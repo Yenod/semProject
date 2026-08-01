@@ -141,7 +141,11 @@ public class PopulationReporter
 
                     System.out.printf("Name: %s | Total Population: %,d", record.name(), record.totalPopulation());
 
-                    if (!typeLower.equals("district") && !typeLower.equals("city"))
+                    if (typeLower.equals("district") || typeLower.equals("city"))
+                    {
+                        System.out.println();
+                    }
+                    else
                     {
                         System.out.printf(" | Urban Population: %,d (%.2f%%) | Rural Population: %,d (%.2f%%)%n",
                             record.urbanPopulation(), urbanPercent, record.ruralPopulation(), ruralPercent);
