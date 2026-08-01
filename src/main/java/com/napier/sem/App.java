@@ -11,7 +11,7 @@ public class App
         if  (args.length < 1)
         {
             dbLocation = "localhost:33060";
-            delay = 10000;
+            delay = 5000;
         }
         else
         {
@@ -24,7 +24,7 @@ public class App
             Connection connection = db.getConnection();
             PopulationReporter populationReporter = new PopulationReporter(connection);
 
-            // Desired reports go here:
+        // Desired reports go here:
             //populationReporter.countryReport();
             //populationReporter.cityReport("Cities");
             //populationReporter.cityReport("Capitals");

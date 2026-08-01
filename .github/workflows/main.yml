@@ -47,7 +47,7 @@ jobs:
       - name: Start database
         run: docker compose up -d db
       - name: Run integration tests and generate coverage
-        run: mvn clean verify -Dtest=IntegrationTest
+        run: mvn clean verify -Dtest=IntegrationTests
       - name: Upload integration-test coverage to Codecov
         uses: codecov/codecov-action@v5
         with:

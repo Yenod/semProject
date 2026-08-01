@@ -36,17 +36,25 @@ class UnitTests
         when(resultSet.getInt("Population")).thenReturn(324000000);
         when(resultSet.getString("Capital")).thenReturn("Washington");
 
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(output));
+        PrintStream systemOut = System.out;
+        var testOut = new ByteArrayOutputStream();
 
-        reporter.countryReport();
+        try
+        {
+            System.setOut(new PrintStream(testOut));
+            reporter.countryReport();
+        }
+        finally
+        {
+            System.setOut(systemOut);
+        }
 
-        assertTrue(output.toString().contains("USA"));
-        assertTrue(output.toString().contains("United States"));
-        assertTrue(output.toString().contains("North America"));
-        assertTrue(output.toString().contains("324000000"));
-        assertTrue(output.toString().contains("Washington"));
+        String outString = testOut.toString();
+
+        assertTrue(outString.contains("USA"));
+        assertTrue(outString.contains("United States"));
+        assertTrue(outString.contains("North America"));
+        assertTrue(outString.contains("324000000"));
+        assertTrue(outString.contains("Washington"));
     }
-
-
 }
