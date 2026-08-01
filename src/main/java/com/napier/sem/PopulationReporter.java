@@ -139,7 +139,7 @@ public class PopulationReporter
                     double ruralPercent = totalPopulation > 0 ?
                             ((double) ruralPopulation / totalPopulation) * 100 : 0.0;
 
-                    System.out.printf("Name: %s | Total Population: %,d", record.name(), record.totalPopulation());
+                    System.out.printf("%nName: %s | Total Population: %,d", record.name(), record.totalPopulation());
 
                     if (typeLower.equals("district") || typeLower.equals("city"))
                     {
@@ -147,7 +147,7 @@ public class PopulationReporter
                     }
                     else
                     {
-                        System.out.printf(" | Urban Population: %,d (%.2f%%) | Rural Population: %,d (%.2f%%)%n",
+                        System.out.printf(" | Urban Population: %,d (%.2f%%) | Rural Population: %,d (%.2f%%)",
                             record.urbanPopulation(), urbanPercent, record.ruralPopulation(), ruralPercent);
                     }
                 }
