@@ -1,8 +1,10 @@
 package com.napier.sem;
 import java.sql.*;
 import java.util.Locale;
+import java.util.Collections;
 
 import static java.lang.Math.*;
+
 
 public class PopulationReporter
 {
@@ -12,7 +14,7 @@ public class PopulationReporter
 
     public void languageReport(String... args)
     {
-        String placeholders = String.join(", ", java.util.Collections.nCopies(args.length, "?"));
+        String placeholders = String.join(", ", Collections.nCopies(args.length, "?"));
         String query = "SELECT Language, SUM(Population * Percentage / 100) AS Speakers, "
                 + "(SELECT SUM(Population) FROM country) AS TotalPopulation "
                 + "FROM countrylanguage JOIN country ON Code = CountryCode "
