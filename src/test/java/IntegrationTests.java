@@ -1,6 +1,5 @@
 import com.napier.sem.*;
 import org.junit.jupiter.api.*;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.sql.*;
@@ -11,6 +10,9 @@ public class IntegrationTests
     private static DBManager database;
     private static Connection connection;
     private static PopulationReporter reporter;
+    private static final PrintStream systemOut = System.out;
+    private ByteArrayOutputStream outputBuffer;
+    private PrintStream testOut;
 
     @BeforeAll
     static void init()
@@ -29,6 +31,19 @@ public class IntegrationTests
         }
     }
 
+    @BeforeEach
+    void setUp()
+    {
+        outputBuffer = new ByteArrayOutputStream();
+        testOut = new PrintStream(outputBuffer);
+    }
+
+    @AfterEach
+    void cleanUp()
+    {
+        System.setOut(systemOut);
+    }
+
     @Test
     void connectsToDatabase() throws SQLException
     {
@@ -45,141 +60,75 @@ public class IntegrationTests
     @Test
     void countryReportTest()
     {
-        PrintStream systemOut = System.out;
-        var testOut = new ByteArrayOutputStream();
+        System.setOut(testOut);
+        reporter.countryReport();
 
-        try
-        {
-            System.setOut(new PrintStream(testOut));
-            reporter.countryReport();
-        }
-        finally
-        {
-            System.setOut(systemOut);
-        }
-
-        String outString = testOut.toString();
-
-        assertTrue(outString.toLowerCase().contains("china"));
-        assertTrue(outString.toLowerCase().contains("population"));
-        assertTrue(outString.matches("(?s).*\\d.*")); //regex for contains number
+        String report = outputBuffer.toString();
+        assertTrue(report.toLowerCase().contains("china"));
+        assertTrue(report.toLowerCase().contains("population"));
+        assertTrue(report.matches("(?s).*\\d.*")); //regex for contains number
     }
 
     @Test
     void cityReportTest()
     {
-        PrintStream systemOut = System.out;
-        var testOut = new ByteArrayOutputStream();
+        System.setOut(testOut);
+        reporter.cityReport("Cities", 5);
 
-        try
-        {
-            System.setOut(new PrintStream(testOut));
-            reporter.cityReport("Cities", 5);
-        }
-        finally
-        {
-            System.setOut(systemOut);
-        }
-
-        String outString = testOut.toString();
-
-        assertTrue(outString.toLowerCase().contains("country"));
-        assertTrue(outString.toLowerCase().contains("district"));
-        assertTrue(outString.toLowerCase().contains("population"));
-        assertTrue(outString.matches("(?s).*\\d.*")); //regex for contains number
+        String report = outputBuffer.toString();
+        assertTrue(report.toLowerCase().contains("country"));
+        assertTrue(report.toLowerCase().contains("district"));
+        assertTrue(report.toLowerCase().contains("population"));
+        assertTrue(report.matches("(?s).*\\d.*")); //regex for contains number
     }
 
     @Test
     void capitalReportTest()
     {
-        PrintStream systemOut = System.out;
-        var testOut = new ByteArrayOutputStream();
+        System.setOut(testOut);
+        reporter.cityReport("Capitals");
 
-        try
-        {
-            System.setOut(new PrintStream(testOut));
-            reporter.cityReport("Captials");
-        }
-        finally
-        {
-            System.setOut(systemOut);
-        }
-
-        String outString = testOut.toString();
-
-        assertTrue(outString.toLowerCase().contains("london"));
-        assertTrue(outString.toLowerCase().contains("country"));
-        assertTrue(outString.toLowerCase().contains("population"));
-        assertTrue(outString.matches("(?s).*\\d.*")); //regex for contains number
+        String report = outputBuffer.toString();
+        assertTrue(report.toLowerCase().contains("london"));
+        assertTrue(report.toLowerCase().contains("country"));
+        assertTrue(report.toLowerCase().contains("population"));
+        assertTrue(report.matches("(?s).*\\d.*")); //regex for contains number
     }
 
     @Test
     void populationReportAllCountryTest()
     {
-        PrintStream systemOut = System.out;
-        var testOut = new ByteArrayOutputStream();
+        System.setOut(testOut);
+        reporter.populationReport("Country");
 
-        try
-        {
-            System.setOut(new PrintStream(testOut));
-            reporter.populationReport("Country");
-        }
-        finally
-        {
-            System.setOut(systemOut);
-        }
-
-        String outString = testOut.toString();
-
-        assertTrue(outString.toLowerCase().contains("china"));
-        assertTrue(outString.toLowerCase().contains("%"));
-        assertTrue(outString.matches("(?s).*\\d.*")); //regex for contains number
+        String report = outputBuffer.toString();
+        assertTrue(report.toLowerCase().contains("china"));
+        assertTrue(report.toLowerCase().contains("%"));
+        assertTrue(report.matches("(?s).*\\d.*")); //regex for contains number
     }
 
     @Test
     void populationReportWorldTest()
     {
-        PrintStream systemOut = System.out;
-        var testOut = new ByteArrayOutputStream();
+        System.setOut(testOut);
+        reporter.populationReport("World");
 
-        try
-        {
-            System.setOut(new PrintStream(testOut));
-            reporter.populationReport("World");
-        }
-        finally
-        {
-            System.setOut(systemOut);
-        }
-
-        String outString = testOut.toString();
-
-        assertTrue(outString.toLowerCase().contains("population"));
-        assertTrue(outString.toLowerCase().contains("%"));
-        assertTrue(outString.matches("(?s).*\\d.*")); //regex for contains number
+        String report = outputBuffer.toString();
+        assertTrue(report.toLowerCase().contains("population"));
+        assertTrue(report.toLowerCase().contains("%"));
+        assertTrue(report.matches("(?s).*\\d.*")); //regex for contains number
     }
 
     @Test
     void populationReportRegionTest()
     {
-        PrintStream systemOut = System.out;
-        var testOut = new ByteArrayOutputStream();
+        System.setOut(testOut);
+        reporter.populationReport("Region", "Polynesia");
 
-        try
-        {
-            System.setOut(new PrintStream(testOut));
-            reporter.populationReport("Region", "Polynesia");
-        }
-        finally
-        {
-            System.setOut(systemOut);
-        }
-
-        String outString = testOut.toString();
-
-        assertTrue(outString.toLowerCase().contains("polynesia"));
-        assertTrue(outString.toLowerCase().contains("population"));
-        assertTrue(outString.toLowerCase().contains("%"));
-        assertTrue(outString.matches("(?s).*\\d.*")); //regex for contains number
+        String report = outputBuffer.toString();
+        assertTrue(report.toLowerCase().contains("polynesia"));
+        assertTrue(report.toLowerCase().contains("population"));
+        assertTrue(report.toLowerCase().contains("%"));
+        assertTrue(report.matches("(?s).*\\d.*")); //regex for contains number
     }
 }
