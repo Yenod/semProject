@@ -177,7 +177,7 @@ public class IntegrationTests
 
         String outString = testOut.toString();
 
-        assertTrue(outString.toLowerCase().contains("tonga"));
+        assertTrue(outString.toLowerCase().contains("polynesia"));
         assertTrue(outString.toLowerCase().contains("population"));
         assertTrue(outString.toLowerCase().contains("%"));
         assertTrue(outString.matches("(?s).*\\d.*")); //regex for contains number
