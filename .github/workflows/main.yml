@@ -61,11 +61,13 @@ jobs:
         run: docker compose down
 
   Build:
-    name: Build and Start Using docker-compose
+    name: Build and Start Using docker-compose and Deploy Release
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -75,5 +77,12 @@ jobs:
         run: |
           mvn package -DskipTests
           docker compose up --abort-on-container-exit
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          automatic_release_tag: "latest"
+          files: |
+            ./target/*.jar
       - name: view logs
         run: docker compose logs app
