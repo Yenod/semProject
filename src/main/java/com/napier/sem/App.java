@@ -6,18 +6,12 @@ public class App
 {
     public static void main(String[] args)
     {
-        String dbLocation;
-        int delay;
-        if  (args.length < 1)
-        {
-            dbLocation = "localhost:33060";
-            delay = 5000;
-        }
-        else
-        {
-            dbLocation = args[0];
-            delay = Integer.parseInt(args[1]);
-        }
+        String dbLocation = "localhost:33060";
+        int delay = 5000;
+
+        if (args.length > 0) dbLocation = args[0];
+        if (args.length > 1) delay = Integer.parseInt(args[1]);
+
         //DBManager implements auto-closeable
         try (DBManager db = new DBManager(dbLocation, delay))
         {

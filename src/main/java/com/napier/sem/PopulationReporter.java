@@ -91,8 +91,7 @@ public class PopulationReporter
         String query;
         int placeholders = 0; //number of placeholders in the query
 
-        switch (typeLower)
-        {
+        switch (typeLower) {
             case "world":
                 query = "SELECT 'World' AS Name, "
                         + "(SELECT SUM(Population) FROM country) AS TotalPopulation, "
@@ -118,11 +117,9 @@ public class PopulationReporter
                 query = "SELECT country.Name AS Name, "
                         + "country.Population AS TotalPopulation, "
                         + "SUM(COALESCE(city.Population, 0)) AS UrbanPopulation "
-                        + "FROM country "
-                        + "LEFT JOIN city ON city.CountryCode = country.Code ";
+                        + "FROM country LEFT JOIN city ON city.CountryCode = country.Code ";
 
-                if (name != null)
-                {
+                if (name != null) {
                     query += "WHERE country.Name = ? ";
                     placeholders = 1;
                 }
@@ -130,18 +127,12 @@ public class PopulationReporter
                 query += "GROUP BY country.Code, country.Name, country.Population";
                 break;
             case "district":
-                query = "SELECT ? AS Name, "
-                        + "SUM(Population) AS TotalPopulation, "
-                        + "SUM(Population) AS UrbanPopulation "
-                        + "FROM city WHERE District = ?";
+                query = "SELECT ? AS Name, SUM(Population) AS TotalPopulation FROM city WHERE District = ?";
                 placeholders = 2;
                 break;
             case "city":
-                query = "SELECT ? AS Name, "
-                        + "SUM(Population) AS TotalPopulation, "
-                        + "SUM(Population) AS UrbanPopulation "
-                        + "FROM city WHERE Name = ?";
-                placeholders = 2;
+                query = "SELECT ID, Name, Population AS TotalPopulation FROM city WHERE Name = ? ORDER BY Population DESC";
+                placeholders = 1;
                 break;
             default:
                 return;
@@ -157,31 +148,21 @@ public class PopulationReporter
                 {
                     String entityName = rs.getString("Name");
                     long totalPopulation = rs.getLong("TotalPopulation");
-                    long urbanPopulation = rs.getLong("UrbanPopulation");
-                    long ruralPopulation = max(totalPopulation - urbanPopulation, 0);
 
-                    PopulationRecord record = new PopulationRecord(
-                            entityName,
-                            totalPopulation,
-                            urbanPopulation,
-                            ruralPopulation
-                    );
+                    System.out.printf("%nName: %s | Total Population: %,d", entityName, totalPopulation);
 
-                    double urbanPercent = totalPopulation > 0 ?
-                            ((double) urbanPopulation / totalPopulation) * 100 : 0.0;
-                    double ruralPercent = totalPopulation > 0 ?
-                            ((double) ruralPopulation / totalPopulation) * 100 : 0.0;
-
-                    System.out.printf("%nName: %s | Total Population: %,d", record.name(), record.totalPopulation());
-
-                    if (typeLower.equals("district") || typeLower.equals("city"))
+                    if (!( typeLower.equals("district") || typeLower.equals("city") ))
                     {
-                        System.out.println();
-                    }
-                    else
-                    {
+                        long urbanPopulation = rs.getLong("UrbanPopulation");
+                        long ruralPopulation = max(totalPopulation - urbanPopulation, 0);
+
+                        double urbanPercent = totalPopulation > 0 ?
+                                ((double) urbanPopulation / totalPopulation) * 100 : 0.0;
+                        double ruralPercent = totalPopulation > 0 ?
+                                ((double) ruralPopulation / totalPopulation) * 100 : 0.0;
+
                         System.out.printf(" | Urban Population: %,d (%.2f%%) | Rural Population: %,d (%.2f%%)",
-                            record.urbanPopulation(), urbanPercent, record.ruralPopulation(), ruralPercent);
+                                urbanPopulation, urbanPercent, ruralPopulation, ruralPercent);
                     }
                 }
             }

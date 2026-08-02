@@ -67,7 +67,6 @@ public class DBManager implements AutoCloseable
 
     /**
      * Closes the managed database connection if it exists.
-     * Automatically called when the object is garbage collected.
      */
     @Override
     public void close()
