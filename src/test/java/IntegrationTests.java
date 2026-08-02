@@ -5,6 +5,9 @@ import java.io.PrintStream;
 import java.sql.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Integration tests for {@link App}.
+ */
 public class IntegrationTests
 {
     private static DBManager database;
@@ -25,12 +28,12 @@ public class IntegrationTests
     @AfterAll
     static void closeDatabase()
     {
-        if (database != null)
-        {
-            database.close();
-        }
+        if (database != null) { database.close(); }
     }
 
+    /**
+     * Creates a buffer to capture report output.
+     */
     @BeforeEach
     void setUp()
     {

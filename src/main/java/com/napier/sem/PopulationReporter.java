@@ -5,16 +5,29 @@ import java.util.Collections;
 
 import static java.lang.Math.*;
 
-
+/**
+ * Generates and prints reports on population statistics using data from a database.
+ */
 public class PopulationReporter
 {
+    /** Database connection used to retrieve report data. */
     private final Connection connection;
 
+    /**
+     * Creates a {@link PopulationReporter} with the supplied database connection.
+     *
+     * @param connection connection to the world database
+     */
     public PopulationReporter (Connection connection) { this.connection = connection; }
 
-    public void languageReport(String... args)
+    /**
+     * Prints speaker counts and percentages for each requested language.
+     *
+     * @param languages one or more languages to include in the report
+     */
+    public void languageReport(String... languages)
     {
-        String placeholders = String.join(", ", Collections.nCopies(args.length, "?"));
+        String placeholders = String.join(", ", Collections.nCopies(languages.length, "?"));
         String query = "SELECT Language, SUM(Population * Percentage / 100) AS Speakers, "
                 + "(SELECT SUM(Population) FROM country) AS TotalPopulation "
                 + "FROM countrylanguage JOIN country ON Code = CountryCode "
@@ -22,9 +35,9 @@ public class PopulationReporter
 
         try (PreparedStatement stmt = connection.prepareStatement(query))
         {
-            for (int i = 0; i < args.length; i++)
+            for (int i = 0; i < languages.length; i++)
             {
-                stmt.setString(i + 1, args[i]);
+                stmt.setString(i + 1, languages[i]); // Placeholders start at index 1
             }
 
             try (ResultSet rs = stmt.executeQuery())
@@ -34,6 +47,7 @@ public class PopulationReporter
                     String language = rs.getString("Language");
                     long speakers = rs.getLong("Speakers");
                     long totalPopulation = rs.getLong("TotalPopulation");
+                    if (totalPopulation == 0) return;
                     double percentage = (double) speakers / totalPopulation * 100;
                     System.out.printf(
                             "%nLanguage = %s, Speakers = %d, Percentage = %.2f%%",
@@ -47,19 +61,38 @@ public class PopulationReporter
         }
     }
 
+    /**
+     * Prints a population report for all geopolitical entities of the specified type.
+     *
+     * <p>Overload for report types that do not require a name; {@code world} or {@code country}.</p>
+     *
+     * @param type the report type: {@code world}, {@code continent},
+     *             {@code region}, {@code country}, {@code district}, or
+     *             {@code city}
+     */
     public void populationReport(String type)
     {
         populationReport(type, null);
     }
 
+    /**
+     * Prints population data for the requested geopolitical entity type of the given name.
+     *
+     * <p>{@code type} of {@code world} does not accept a {@code name}. {@code district}
+     * and {@code city} cannot calculate urban/rural population distribution.</p>
+     *
+     * @param type the type of entity: {@code world}, {@code continent}, {@code region},
+     * {@code country}, {@code district}, or {@code city}
+     *
+     * @param name the name of the entity
+     */
     public void populationReport(String type, String name)
     {
         String typeLower = type.toLowerCase(Locale.ROOT);
         String query;
-        int placeholders = 0;
+        int placeholders = 0; //number of placeholders in the query
 
-        switch (typeLower)
-        {
+        switch (typeLower) {
             case "world":
                 query = "SELECT 'World' AS Name, "
                         + "(SELECT SUM(Population) FROM country) AS TotalPopulation, "
@@ -85,30 +118,21 @@ public class PopulationReporter
                 query = "SELECT country.Name AS Name, "
                         + "country.Population AS TotalPopulation, "
                         + "SUM(COALESCE(city.Population, 0)) AS UrbanPopulation "
-                        + "FROM country "
-                        + "LEFT JOIN city ON city.CountryCode = country.Code ";
+                        + "FROM country LEFT JOIN city ON city.CountryCode = country.Code ";
 
-                if (name != null)
-                {
+                if (name != null) {
                     query += "WHERE country.Name = ? ";
                     placeholders = 1;
                 }
-
-                query += "GROUP BY country.Code, country.Name, country.Population";
+                query += "GROUP BY country.Code, country.Name, country.Population ORDER BY TotalPopulation DESC";
                 break;
             case "district":
-                query = "SELECT ? AS Name, "
-                        + "SUM(Population) AS TotalPopulation, "
-                        + "SUM(Population) AS UrbanPopulation "
-                        + "FROM city WHERE District = ?";
+                query = "SELECT ? AS Name, SUM(Population) AS TotalPopulation FROM city WHERE District = ?";
                 placeholders = 2;
                 break;
             case "city":
-                query = "SELECT ? AS Name, "
-                        + "SUM(Population) AS TotalPopulation, "
-                        + "SUM(Population) AS UrbanPopulation "
-                        + "FROM city WHERE Name = ?";
-                placeholders = 2;
+                query = "SELECT ID, Name, Population AS TotalPopulation FROM city WHERE Name = ? ORDER BY Population DESC";
+                placeholders = 1;
                 break;
             default:
                 return;
@@ -124,31 +148,21 @@ public class PopulationReporter
                 {
                     String entityName = rs.getString("Name");
                     long totalPopulation = rs.getLong("TotalPopulation");
-                    long urbanPopulation = rs.getLong("UrbanPopulation");
-                    long ruralPopulation = max(totalPopulation - urbanPopulation, 0);
 
-                    PopulationRecord record = new PopulationRecord(
-                            entityName,
-                            totalPopulation,
-                            urbanPopulation,
-                            ruralPopulation
-                    );
+                    System.out.printf("%nName: %s | Total Population: %,d", entityName, totalPopulation);
 
-                    double urbanPercent = totalPopulation > 0 ?
-                            ((double) urbanPopulation / totalPopulation) * 100 : 0.0;
-                    double ruralPercent = totalPopulation > 0 ?
-                            ((double) ruralPopulation / totalPopulation) * 100 : 0.0;
-
-                    System.out.printf("%nName: %s | Total Population: %,d", record.name(), record.totalPopulation());
-
-                    if (typeLower.equals("district") || typeLower.equals("city"))
+                    if (!( typeLower.equals("district") || typeLower.equals("city") ))
                     {
-                        System.out.println();
-                    }
-                    else
-                    {
+                        long urbanPopulation = rs.getLong("UrbanPopulation");
+                        long ruralPopulation = max(totalPopulation - urbanPopulation, 0);
+
+                        double urbanPercent = totalPopulation > 0 ?
+                                ((double) urbanPopulation / totalPopulation) * 100 : 0.0;
+                        double ruralPercent = totalPopulation > 0 ?
+                                ((double) ruralPopulation / totalPopulation) * 100 : 0.0;
+
                         System.out.printf(" | Urban Population: %,d (%.2f%%) | Rural Population: %,d (%.2f%%)",
-                            record.urbanPopulation(), urbanPercent, record.ruralPopulation(), ruralPercent);
+                                urbanPopulation, urbanPercent, ruralPopulation, ruralPercent);
                     }
                 }
             }
@@ -159,9 +173,14 @@ public class PopulationReporter
         }
     }
 
+    /**
+     * Prints all countries in descending order of population.
+     */
     public void countryReport()
     {
-        String query = "SELECT * FROM country ORDER BY Population DESC";
+        String query = "SELECT country.Code, country.Name, country.Continent, country.Region, "
+                     + "country.Population, city.Name AS Capital FROM country LEFT JOIN city ON country.Code = city.CountryCode "
+                     + "AND city.ID = country.Capital ORDER BY country.Population DESC";
 
         try (PreparedStatement stmt = connection.prepareStatement(query))
         {
@@ -172,7 +191,7 @@ public class PopulationReporter
                             rs.getString("Name"),
                             rs.getString("Continent"),
                             rs.getString("Region"),
-                            rs.getInt("Population"),
+                            rs.getLong("Population"),
                             rs.getString("Capital")
                     );
                     System.out.println(country);
@@ -185,11 +204,23 @@ public class PopulationReporter
         }
     }
 
+    /**
+     * Prints cities in descending order of population.
+     *
+     * @param capitals whether to report on {@code cities} or {@code capitals}
+     */
     public void cityReport(String capitals)
     {
         cityReport(capitals, null);
     }
 
+    /**
+     * Prints cities in descending order of population up to a given limit.
+     *
+     * @param capitals whether to report on {@code cities} or {@code capitals}
+     *
+     * @param limit the maximum number of cities to print
+     */
     public void cityReport(String capitals, Integer limit)
     {
         String query = "SELECT city.Name, country.Name AS Country, city.District, city.Population "
@@ -197,7 +228,7 @@ public class PopulationReporter
 
         if (capitals.equalsIgnoreCase("capitals") || capitals.equalsIgnoreCase("capital"))
         {
-            query += "WHERE city.CountryCode = country.Code ";
+            query += "WHERE city.ID = country.Capital ";
 
         }
 
