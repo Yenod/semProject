@@ -86,3 +86,17 @@ Develop Build Status:   [![develop](https://github.com/Yenod/semProject/actions/
     </tr>
   </tbody>
 </table>
+
+Declaration
+I declare, in accordance with Edinburgh Napier University’s Academic Integrity
+Regulations that: except where explicit reference is made to the contribution of
+others*, this assignment is the result of my own work, and has not been submitted
+for any module, programme or degree at Edinburgh Napier University or any other
+institution.  
+*IMPORTANT: Contribution of includes use of generative Artificial Intelligence (AI)
+tools. Ensure you have read the University Guidelines for Students on AI & Writing
+Assistant Tools).  Please declare here whether you have used such tools, and to
+what extent:
+☑NO
+☐YES
+I have not used such tools
