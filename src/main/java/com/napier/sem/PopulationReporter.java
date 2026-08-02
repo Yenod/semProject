@@ -47,6 +47,7 @@ public class PopulationReporter
                     String language = rs.getString("Language");
                     long speakers = rs.getLong("Speakers");
                     long totalPopulation = rs.getLong("TotalPopulation");
+                    if (totalPopulation == 0) return;
                     double percentage = (double) speakers / totalPopulation * 100;
                     System.out.printf(
                             "%nLanguage = %s, Speakers = %d, Percentage = %.2f%%",
@@ -123,8 +124,7 @@ public class PopulationReporter
                     query += "WHERE country.Name = ? ";
                     placeholders = 1;
                 }
-
-                query += "GROUP BY country.Code, country.Name, country.Population";
+                query += "GROUP BY country.Code, country.Name, country.Population ORDER BY TotalPopulation DESC";
                 break;
             case "district":
                 query = "SELECT ? AS Name, SUM(Population) AS TotalPopulation FROM city WHERE District = ?";
@@ -191,7 +191,7 @@ public class PopulationReporter
                             rs.getString("Name"),
                             rs.getString("Continent"),
                             rs.getString("Region"),
-                            rs.getInt("Population"),
+                            rs.getLong("Population"),
                             rs.getString("Capital")
                     );
                     System.out.println(country);

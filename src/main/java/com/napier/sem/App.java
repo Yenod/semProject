@@ -1,7 +1,5 @@
 package com.napier.sem;
 
-import java.sql.Connection;
-
 public class App
 {
     public static void main(String[] args)
@@ -15,11 +13,10 @@ public class App
         //DBManager implements auto-closeable
         try (DBManager db = new DBManager(dbLocation, delay))
         {
-            Connection connection = db.getConnection();
-            PopulationReporter populationReporter = new PopulationReporter(connection);
+            PopulationReporter populationReporter = new PopulationReporter(db.getConnection());
 
         // Desired reports go here:
-            populationReporter.countryReport();
+            //populationReporter.countryReport();
             //populationReporter.cityReport("Cities");
             //populationReporter.cityReport("Capitals");
             //populationReporter.cityReport("Cities", 5);
@@ -30,7 +27,7 @@ public class App
             //populationReporter.populationReport("Country", "Malaysia");
             //populationReporter.populationReport("District", "Henan");
             //populationReporter.populationReport("City", "Paris");
-            //populationReporter.languageReport("Chinese", "English", "Spanish");
+            populationReporter.languageReport("Chinese", "English", "Spanish");
         }
     }
 }
