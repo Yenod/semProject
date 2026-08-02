@@ -51,7 +51,7 @@ class UnitTests
         when(resultSet.getString("Name")).thenReturn("United States");
         when(resultSet.getString("Continent")).thenReturn("North America");
         when(resultSet.getString("Region")).thenReturn("North America");
-        when(resultSet.getInt("Population")).thenReturn(278357000);
+        when(resultSet.getLong("Population")).thenReturn(278357000L);
         when(resultSet.getString("Capital")).thenReturn("Washington");
 
         System.setOut(testOut);
