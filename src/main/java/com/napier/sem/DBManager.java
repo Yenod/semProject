@@ -4,12 +4,28 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Manages a connection to a MySQL world database.
+ *
+ * <p>The manager attempts to establish a database connection when created. It
+ * implements {@link AutoCloseable}, so will automatically close the connection when destroyed.</p>
+ */
 public class DBManager implements AutoCloseable
 {
+    /** Connection to the database */
     private Connection connection = null;
 
+    /**
+     * @return the active database connection
+     */
     public Connection getConnection() { return connection; }
 
+    /**
+     * Constructor loads the MySQL driver and connects to the world database.
+     *
+     * @param location database host and port
+     * @param delay delay in milliseconds between each connection attempt
+     */
     public DBManager(String location, int delay)
     {
         try
@@ -49,19 +65,17 @@ public class DBManager implements AutoCloseable
         }
     }
 
+    /**
+     * Closes the managed database connection if it exists.
+     * Automatically called when the object is garbage collected.
+     */
     @Override
     public void close()
     {
         if (connection != null)
         {
-            try
-            {
-                connection.close();
-            }
-            catch (Exception e)
-            {
-                System.out.println("Error closing connection to database");
-            }
+            try { connection.close(); }
+            catch (Exception e) { System.out.println("Error closing connection to database"); }
         }
     }
 

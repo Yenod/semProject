@@ -18,7 +18,7 @@ public class App
             dbLocation = args[0];
             delay = Integer.parseInt(args[1]);
         }
-        //DBManager has a close method which closes the connection
+        //DBManager implements auto-closeable
         try (DBManager db = new DBManager(dbLocation, delay))
         {
             Connection connection = db.getConnection();
@@ -28,15 +28,15 @@ public class App
             populationReporter.countryReport();
             //populationReporter.cityReport("Cities");
             //populationReporter.cityReport("Capitals");
-            populationReporter.cityReport("Cities", 5);
+            //populationReporter.cityReport("Cities", 5);
             //populationReporter.populationReport("Country");
             //populationReporter.populationReport("World");
-            populationReporter.populationReport("Continent", "Africa");
-            populationReporter.populationReport("Region", "Caribbean");
-            populationReporter.populationReport("Country", "Malaysia");
-            populationReporter.populationReport("District", "Henan");
-            populationReporter.populationReport("City", "Paris");
-            populationReporter.languageReport("Chinese", "English", "Spanish");
+            //populationReporter.populationReport("Continent", "Africa");
+            //populationReporter.populationReport("Region", "Caribbean");
+            //populationReporter.populationReport("Country", "Malaysia");
+            //populationReporter.populationReport("District", "Henan");
+            //populationReporter.populationReport("City", "Paris");
+            //populationReporter.languageReport("Chinese", "English", "Spanish");
         }
     }
 }

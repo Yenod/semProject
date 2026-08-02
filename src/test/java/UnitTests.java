@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+/**
+ * Unit tests for {@link App}.
+ */
 class UnitTests
 {
     private ResultSet resultSet;
@@ -16,6 +19,9 @@ class UnitTests
     private ByteArrayOutputStream outputBuffer;
     private PrintStream testOut;
 
+    /**
+     * Creates mockito SQL and results objects and a buffer to capture report output.
+     */
     @BeforeEach
     void setUp() throws SQLException
     {
